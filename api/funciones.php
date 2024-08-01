@@ -283,7 +283,6 @@ function crearInsumosMesa($datos){
 
 function cancelarMesa($id) {
     $filePath = "./mesas_ocupadas/" . $id . ".csv";
-
     try {
         if (file_exists($filePath)) {
             if (unlink($filePath)) {
