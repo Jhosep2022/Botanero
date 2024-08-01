@@ -281,12 +281,31 @@ function crearInsumosMesa($datos){
 	return $insumos;
 }
 
-function cancelarMesa($id){
-	$archivoEliminado = unlink("./mesas_ocupadas/". $id .".csv");
-	if($archivoEliminado){
-		return true;
-	}
+function cancelarMesa($id) {
+    $filePath = "./mesas_ocupadas/" . $id . ".csv";
+
+    try {
+        if (file_exists($filePath)) {
+            if (unlink($filePath)) {
+                error_log("Mesa canceled successfully: " . $id);
+                return ["success" => true, "message" => "Mesa cancelada correctamente"];
+            } else {
+                error_log("Error al eliminar el archivo de la mesa: $filePath");
+                throw new Exception("Error al eliminar el archivo");
+            }
+        } else {
+            error_log("Archivo de mesa no encontrado: $filePath");
+            throw new Exception("Archivo de mesa no encontrado");
+        }
+    } catch (Exception $e) {
+        error_log("Excepción al cancelar mesa: " . $e->getMessage());
+        return ["success" => false, "message" => "Error cancelando la mesa"];
+    }
 }
+
+
+
+
 
 function editarMesa($mesa){
 	$archivoEliminado = unlink("./mesas_ocupadas/". $mesa->id .".csv");
