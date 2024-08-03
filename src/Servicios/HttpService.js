@@ -33,29 +33,13 @@ const HttpService = {
   },
 
   async eliminar(ruta, id) {
-    console.log("Eliminando recurso en:", RUTA_GLOBAL + ruta, "con ID:", id);
-    try {
-        const respuesta = await fetch(RUTA_GLOBAL + ruta, {
-            method: "post",
-            body: JSON.stringify({ id }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        if (!respuesta.ok) {
-            const errorText = await respuesta.text();
-            console.error(`Error HTTP: ${respuesta.status}`);
-            console.error(`Error detalle: ${errorText}`);
-            return null;
-        }
-        let resultado = await respuesta.json();
-        console.log("Resultado de eliminar:", resultado);
-        return resultado;
-    } catch (error) {
-        console.error("Error en la solicitud:", error);
-        return null;
-    }
-}
+      const respuesta = await fetch(RUTA_GLOBAL + ruta, {
+          method: "post",
+          body: JSON.stringify(id),
+      });
+      let resultado = await respuesta.json()
+      return resultado
+  }
 }
 
 export default HttpService

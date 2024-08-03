@@ -7,7 +7,7 @@
       </b-navbar-item>
     </template>
     <template #start>
-      <b-navbar-item tag="router-link" :to="{ path: '/' }">
+      <b-navbar-item v-if="role_id == 3" tag="router-link" :to="{ path: '/' }">
         <b-icon icon="home"></b-icon>
         <span></span>
         Inicio

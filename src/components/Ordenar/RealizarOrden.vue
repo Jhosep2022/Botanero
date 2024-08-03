@@ -4,7 +4,7 @@
         <b-icon icon="order-bool-ascending-variant" size="is-large" type="is-primary"></b-icon>
         Realizar orden
       </p>
-  
+
       <div class="columns is-multiline">
         <div class="column" v-for="mesa in mesas" :key="mesa.mesa.idMesa">
           <div class="box">
@@ -28,7 +28,7 @@
                   </a>
                 </div>
               </template>
-  
+
               <div class="card-content">
                 <div class="content">
                   <b-table :data="mesa.insumos" :checked-rows.sync="checkedRows" :is-row-checkable="(row) => row.estado !== 'entregado'" checkable :checkbox-position="checkboxPosition" :checkbox-type="checkboxType">
@@ -70,17 +70,17 @@
       <ticket @impreso="onImpreso" :venta="this.ventaSeleccionada" :insumos="insumosSeleccionados" :datosLocal="datos" :logo="logo" v-if="mostrarTicket"></ticket>
     </section>
   </template>
-  
+
   <script>
   import { mapState, mapActions } from 'vuex';
   import Ticket from '../Ventas/Ticket.vue';
   import HttpService from '../../Servicios/HttpService';
   import Utiles from '../../Servicios/Utiles';
-  
+
   export default ({
     name: "RealizarOrden",
     components: { Ticket },
-  
+
     data: () => ({
         datos: {},
         logo: null,
@@ -93,37 +93,37 @@
         insumosSeleccionados: [],
         pollingInterval: null // Añadir el intervalo de polling aquí
     }),
-  
+
     computed: {
         ...mapState(['mesas'])
     },
-  
+
     mounted() {
         this.fetchMesas();
         this.obtenerDatos();
         this.startPolling(); // Iniciar el polling cuando el componente se monte
     },
-  
+
     beforeDestroy() {
         this.stopPolling(); // Detener el polling cuando el componente se destruya
     },
-  
+
     methods: {
         ...mapActions(['fetchMesas', 'updateMesa']),
-  
+
         startPolling() {
             this.pollingInterval = setInterval(() => {
                 this.fetchMesas(); // Actualizar datos cada intervalo
             }, 5000); // Ajustar el intervalo de tiempo según sea necesario (por ejemplo, cada 5 segundos)
         },
-  
+
         stopPolling() {
             if (this.pollingInterval) {
                 clearInterval(this.pollingInterval);
                 this.pollingInterval = null;
             }
         },
-  
+
         cancelarOrden(id) {
             this.$buefy.dialog.confirm({
                 title: 'Cancelar mesa ' + id,
@@ -147,22 +147,23 @@
                             message: "Error cancelando la orden",
                             type: "is-danger"
                         });
+                        console.log("Error cancelando la orden");
                     }
                 }
             });
         },
-  
+
         obtenerDatos() {
             HttpService.obtener("obtener_datos_local.php").then((resultado) => {
                 this.datos = resultado;
                 this.logo = Utiles.generarUrlImagen(this.datos.logo);
             });
         },
-  
+
         onImpreso(resultado) {
             this.mostrarTicket = resultado;
         },
-  
+
         imprimirComprobante(venta) {
             let hoy = new Date();
             let fecha = hoy.getFullYear() + '-' + (hoy.getMonth() + 1) + '-' + hoy.getDate();
@@ -178,19 +179,19 @@
             this.insumosSeleccionados = venta.insumos;
             this.mostrarTicket = true;
         },
-  
+
         marcarInsumosEntregados(mesa) {
             this.cargando = true;
             let insumos = mesa.insumos;
             let marcados = this.checkedRows;
-  
+
             insumos.forEach(insumo => {
                 marcados.forEach(marca => {
                     if (insumo.id === marca.id)
                         insumo.estado = "entregado";
                 });
             });
-  
+
             let payload = {
                 id: mesa.mesa.idMesa,
                 insumos: insumos,
@@ -199,7 +200,7 @@
                 idUsuario: mesa.mesa.idUsuario,
                 cliente: mesa.mesa.cliente
             };
-  
+
             this.updateMesa(payload).then(() => {
                 this.$buefy.toast.open({
                     message: 'Insumos marcados como entregados',
@@ -209,7 +210,7 @@
                 this.cargando = false;
             });
         },
-  
+
         cobrar(mesa) {
             this.$buefy.dialog.prompt({
                 title: `Cobrar a la mesa #` + mesa.mesa.idMesa,
@@ -229,10 +230,10 @@
                         });
                         return;
                     }
-  
+
                     this.cargando = true;
                     let cambio = parseFloat(value - mesa.mesa.total);
-  
+
                     let payload = {
                         idMesa: mesa.mesa.idMesa,
                         cliente: mesa.mesa.cliente,
@@ -242,7 +243,7 @@
                         insumos: mesa.insumos,
                         atiende: mesa.mesa.atiende
                     };
-  
+
                     HttpService.registrar(payload, "registrar_venta.php")
                         .then(registrado => {
                             if (registrado) {
@@ -259,7 +260,7 @@
                 }
             });
         },
-  
+
         ocuparMesa(mesa) {
             this.$router.push({
                 name: "Ordenar",
@@ -269,4 +270,3 @@
     }
   });
   </script>
-  
